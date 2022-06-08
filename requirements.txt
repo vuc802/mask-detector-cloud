@@ -1,3 +1,2 @@
 opencv-python==4.5.4.58
 tensorflow==2.8
-tensorflow-gpu==2.8 
