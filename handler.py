@@ -89,8 +89,7 @@ def lambda_handler(event, context):
 	image = np.asarray(image)
 	
 
-	blob = cv2.dnn.blobFromImage(image, 1.0, (h, w),
-	(104.0, 177.0, 123.0))
+	blob = cv2.dnn.blobFromImage(image, 1.0, (h, w), (104.0, 177.0, 123.0))
 
 	# pass the blob through the network and obtain the face detections
 	print("[INFO] computing face detections...")
@@ -106,7 +105,7 @@ def lambda_handler(event, context):
 
 		# filter out weak detections by ensuring the confidence is
 		# greater than the minimum confidence
-		if confidence > args["confidence"]:
+		if confidence > 0.5:
 			# compute the (x, y)-coordinates of the bounding box for
 			# the object
 			box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
@@ -128,7 +127,7 @@ def lambda_handler(event, context):
 
 			# pass the face through the model to determine if the face
 			# has a mask or not
-			(mask, withoutMask) = model.predict(face)[0]
+			(mask, withoutMask) = mask_model.predict(face)[0]
 
 			# determine the class label and color we'll use to draw
 			# the bounding box and text
@@ -144,11 +143,9 @@ def lambda_handler(event, context):
 				cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
 			cv2.rectangle(image, (startX, startY), (endX, endY), color, 2)
 
-		output_image = np.uint8(output_image.transpose(1, 2, 0) * 255)
+		output_image = Image.fromarray(image)
 
-		output_image = Image.fromarray(output_image)
-
-	#
+	
 	result = {"output": img_to_base64_str(output_image)}
 
 	return {
